@@ -1,16 +1,31 @@
-from django.urls import path
-from users.views import *
-from rest_framework_simplejwt.views import TokenRefreshView
+from django.urls import path, include
+from users.views import RegisterView, LoginView, ProfileView, UserViewSet
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from rest_framework import routers
 
-
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
 
 app_name = 'users'
 
-
 urlpatterns = [
+    # Authentication endpoints
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
-    path('api/register/', RegisterView.as_view(), name='register'),
-    path('api/login/', LoginView.as_view(), name='login'),
+    # Profile endpoint
+    path('profile/', ProfileView.as_view(), name='profile'),
     
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Subscription endpoints
+    path('users/subscriptions/', 
+         UserViewSet.as_view({'get': 'subscriptions'}),
+         name='user-subscriptions'),
+    path('users/<int:pk>/subscribe/', 
+         UserViewSet.as_view({'post': 'subscribe', 'delete': 'subscribe'}),
+         name='user-subscribe'),
+    
+    # Include router-generated URLs
+    path('', include(router.urls)),
 ]

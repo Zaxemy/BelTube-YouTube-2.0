@@ -1,17 +1,50 @@
-from django.shortcuts import render
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-from .serializers import RegisterSerializer, LoginSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import RegisterSerializer, LoginSerializer
+from rest_framework.decorators import action
+from rest_framework import viewsets
+from users.models import User
+from users.serializers import UserSerializer
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    
+    @action(detail=True, methods=['post', 'delete'])
+    def subscribe(self, request, pk=None):
+        author = self.get_object()
+        user = request.user
+        
+        if request.method == 'POST':
+            if user in author.subscribers.all():
+                return Response({'error': 'Вы уже подписаны'}, status=400)
+            author.subscribers.add(user)
+            return Response({'status': 'Подписка оформлена'}, status=201)
+        
+        if request.method == 'DELETE':
+            if user not in author.subscribers.all():
+                return Response({'error': 'Вы не подписаны'}, status=400)
+            author.subscribers.remove(user)
+            return Response({'status': 'Подписка отменена'}, status=204)
+    
+    @action(detail=False, methods=['get'])
+    def subscriptions(self, request):
+        subs = request.user.subscriptions.all()
+        serializer = SubscriptionSerializer(
+            subs,
+            many=True,
+            context={'request': request}
+        )
+        return Response(serializer.data)
 
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+    
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -43,8 +76,7 @@ class ProfileView(APIView):
     def get(self, request):
         return Response({
             'username': request.user.username,
-            'email': request.user.email
+            'email': request.user.email,
+            'bio': request.user.bio,
+            'avatar': request.user.avatar.url if request.user.avatar else None
         })
-        
-        
-    
