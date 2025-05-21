@@ -13,3 +13,6 @@ db.sqlite3
 media/
 
 fixtures
+
+*/migrations/*
+!*/migrations/__init__.py
