@@ -6,13 +6,15 @@ from .models import Video, Like, Comment
 from .serializers import VideoSerializer, CommentSerializer
 from users.models import User
 from django.db import models
+from videos.paginations import VideoPagination
 
 
 class VideoViewSet(viewsets.ModelViewSet):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
     permission_classes = [AllowAny]
-
+    pagination_class = VideoPagination
+    
     # Аннотации для оптимизации запросов
     def get_queryset(self):
         user = self.request.user

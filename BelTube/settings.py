@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-61cx8yb!t5pgu=4mdvnn7r=r$-mrabt7cyh3%3$%&w!=3^6i-)
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "web"]
 
 
 
@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    
+
     
     'rest_framework_simplejwt',
     'drf_yasg',
@@ -65,16 +65,19 @@ TEMPLATES = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 WSGI_APPLICATION = 'BelTube.wsgi.application'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'beltube_db',
-        'USER': 'admin_beltube',
-        'PASSWORD': '518666',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DATABASE_NAME', 'beltube_db'),
+        'USER': os.getenv('DATABASE_USER', 'admin_beltube'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', '518666'),
+        'HOST': os.getenv('DATABASE_HOST', 'db'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
     }
 }
 
@@ -146,3 +149,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
+
+CORS_ALLOW_ALL_ORIGINS = True

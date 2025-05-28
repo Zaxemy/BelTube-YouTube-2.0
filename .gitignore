@@ -16,3 +16,5 @@ fixtures
 
 */migrations/*
 !*/migrations/__init__.py
+
+task.py
